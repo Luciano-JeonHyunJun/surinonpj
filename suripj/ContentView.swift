@@ -1,24 +1,15 @@
-//
-//  ContentView.swift
-//  suripj
-//
-//  Created by Jeon HyunJun on 12/27/24.
-//
-
 import SwiftUI
 
-struct ContentView: View {
+struct LoginScreen: View {
     var body: some View {
-        VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundStyle(.tint)
-            Text("Hello, world!")
-        }
-        .padding()
+        LoginView()
     }
 }
 
-#Preview {
-    ContentView()
-}
+
+
+
+
+
+
+
