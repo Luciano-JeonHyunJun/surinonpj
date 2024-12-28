@@ -21,10 +21,23 @@ struct LoginView: View {
     @State private var showResendButton = false
     @State private var showErrorMessage = false
     
+    @State private var carrierInfoText: String? // 통신사 선택 후 보여줄 텍스트
+    
     let carriers = ["SKT", "LGU+", "KT"] // 통신사 버튼 3개
     
     var body: some View {
         VStack {
+            // 상단에 "정보를 확인해 주세요" 문구 추가
+            if let carrierInfoText = carrierInfoText {
+                Text(carrierInfoText)
+                    .font(.title2)
+                    .bold() // 볼드체로 설정
+                    .foregroundColor(.black)
+                    .padding(.top, 10) // 이름 위에 위치하도록 상단 여백 조정
+                    .padding(.leading, 10) // 왼쪽 여백을 더 좁힘
+                    .transition(.slide)
+            }
+            
             // 이름 입력
             TextField("이름", text: $name)
                 .padding(.vertical, 8)
@@ -130,7 +143,7 @@ struct LoginView: View {
                             phoneNumberError = nil
                             // 전화번호 입력 완료 시 통신사 버튼 표시
                             withAnimation(.easeIn(duration: 0.5)) {
-                                selectedCarrier = nil
+                                carrierInfoText = nil
                             }
                         }
                         resetErrorsForOtherFields(except: "phoneNumber")
@@ -138,7 +151,7 @@ struct LoginView: View {
                     .onSubmit {
                         if phoneNumberError == nil {
                             withAnimation(.easeIn(duration: 0.5)) {
-                                selectedCarrier = nil
+                                carrierInfoText = "정보를 확인해 주세요."
                             }
                         }
                     }
@@ -152,16 +165,33 @@ struct LoginView: View {
 
             // 통신사 선택 버튼 (3개의 버튼)
             if !phoneNumber.isEmpty && phoneNumber.count == 13 {
-                HStack {
-                    ForEach(carriers, id: \.self) { carrier in
+                VStack {
+                    HStack {
+                        ForEach(carriers, id: \.self) { carrier in
+                            Button(action: {
+                                selectedCarrier = carrier
+                                carrierInfoText = "정보를 확인해 주세요." // 통신사 선택 후 텍스트 변경
+                            }) {
+                                Text(carrier)
+                                    .padding()
+                                    .background(selectedCarrier == carrier ? Color.blue : Color.gray)
+                                    .foregroundColor(.white)
+                                    .cornerRadius(5)
+                                    .padding(.horizontal, 5)
+                            }
+                        }
+                    }
+                    
+                    if selectedCarrier != nil {
                         Button(action: {
-                            selectedCarrier = carrier
+                            // 확인 버튼 동작 추가
                         }) {
-                            Text(carrier)
+                            Text("확인")
                                 .padding()
-                                .background(selectedCarrier == carrier ? Color.blue : Color.gray)
+                                .background(Color.blue)
                                 .foregroundColor(.white)
                                 .cornerRadius(5)
+                                .padding(.top, 20)
                         }
                     }
                 }
@@ -240,6 +270,11 @@ struct ContentView_Previews: PreviewProvider {
         LoginView()
     }
 }
+
+
+
+
+
 
 
 
