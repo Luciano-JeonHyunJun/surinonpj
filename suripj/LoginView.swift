@@ -16,26 +16,34 @@ struct LoginView: View {
     @State private var phoneNumberError: String?
     
     @State private var carrierInfoText: String?
-    @State private var isVerificationActive = false // 화면 전환을 제어하는 변수
+    @State private var isVerificationActive = false
     
     let carriers = ["SKT", "LGU+", "KT"]
-
+    @State private var currentMessage = "이름을 입력해주세요."
+    
     var body: some View {
-        NavigationView { // NavigationView 추가
+        NavigationView {
             VStack {
-                // 상단 텍스트
-                if let carrierInfoText = carrierInfoText {
-                    Text(carrierInfoText)
+                // 상단 텍스트 (이름, 생년월일, 전화번호, 통신사, 정보 확인)
+                VStack(alignment: .leading) {
+                    Text("\(name.isEmpty ? "" : name + "님!") 안녕하세요👋🏻")
                         .font(.title2)
-                        .bold()
                         .foregroundColor(.black)
-                        .padding(.top, 10)
-                        .padding(.leading, 10)
-                        .transition(.slide)
+                        .transition(.opacity)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                    
+                    Text(currentMessage)
+                        .font(.title3)
+                        .foregroundColor(.black)
+                        .padding(.top, 5)
+                        .transition(.opacity)
+                        .frame(maxWidth: .infinity, alignment: .leading)
                 }
+                .padding(.leading, 10)
+                .padding(.top, 20)
 
                 // 이름 입력
-                TextField("이름", text: $name)
+                TextField("이름을 입력해주세요", text: $name)
                     .padding(.vertical, 8)
                     .padding(.horizontal, 12)
                     .background(Color.white)
@@ -51,12 +59,17 @@ struct LoginView: View {
                             resetFieldsForInvalidName()
                         } else {
                             nameError = nil
+                            withAnimation(.easeIn(duration: 0.5)) {
+                                currentMessage = "\(newValue)님 태어난 날 알려줄 수 있어요??👉🏻👈🏻"
+                                showBirthDateField = true
+                            }
                         }
                         resetErrorsForOtherFields(except: "name")
                     }
                     .onSubmit {
                         if nameError == nil {
                             withAnimation(.easeIn(duration: 0.5)) {
+                                currentMessage = "\(name)님 생년월일을 입력해주세요."
                                 showBirthDateField = true
                             }
                         }
@@ -70,7 +83,7 @@ struct LoginView: View {
                         .font(.footnote)
                 }
 
-                // 생년월일 입력
+                // 생년월일 입력 필드 (밑줄 디자인으로 변경)
                 if showBirthDateField {
                     TextField("생년월일 (YYMMDD)", text: $birthDate)
                         .padding(.vertical, 8)
@@ -83,37 +96,23 @@ struct LoginView: View {
                                 .padding(.top, 30), alignment: .bottom
                         )
                         .onChange(of: birthDate) { newValue in
-                            birthDate = formatBirthDate(newValue)
-                            if !isValidBirthDate(birthDate) {
-                                birthDateError = "올바른 생년월일을 입력해주세요."
-                                resetFieldsForInvalidBirthDate()
-                            } else {
-                                birthDateError = nil
-                                withAnimation(.easeIn(duration: 0.5)) {
-                                    showPhoneNumberField = true
-                                }
-                            }
-                            resetErrorsForOtherFields(except: "birthDate")
-                        }
-                        .onSubmit {
-                            if birthDateError == nil {
-                                withAnimation(.easeIn(duration: 0.5)) {
+                            birthDate = formatBirthDate(newValue) // 포맷팅 적용
+                            if birthDate.count == 8 { // 포맷팅 후 8자리인지 확인
+                                withAnimation {
+                                    currentMessage = "\(name)님 전화번호.. 물어봐도 괜찮아요?🫣"
                                     showPhoneNumberField = true
                                 }
                             }
                         }
-                        .onReceive(Just(birthDate)) { _ in
-                            birthDate = birthDate.filter { $0.isNumber }
-                            if birthDate.count > 6 {
-                                birthDate = String(birthDate.prefix(6))
-                            }
-                        }
-                }
+                        .keyboardType(.numberPad)
+                        .textInputAutocapitalization(.none)
+                        .disableAutocorrection(true)
 
-                if let birthDateError = birthDateError {
-                    Text(birthDateError)
-                        .foregroundColor(.red)
-                        .font(.footnote)
+                    if let birthDateError = birthDateError {
+                        Text(birthDateError)
+                            .foregroundColor(.red)
+                            .font(.footnote)
+                    }
                 }
 
                 // 전화번호 입력
@@ -130,12 +129,9 @@ struct LoginView: View {
                         )
                         .onChange(of: phoneNumber) { newValue in
                             phoneNumber = formatPhoneNumber(newValue)
-                            if !isValidPhoneNumber(phoneNumber) {
-                                phoneNumberError = "올바른 전화번호를 입력해주세요."
-                            } else {
-                                phoneNumberError = nil
+                            if phoneNumber.count == 13 {
                                 withAnimation(.easeIn(duration: 0.5)) {
-                                    carrierInfoText = nil
+                                    carrierInfoText = "\(name)님! 통신사는 어디 쓰세요?"
                                 }
                             }
                             resetErrorsForOtherFields(except: "phoneNumber")
@@ -143,7 +139,7 @@ struct LoginView: View {
                         .onSubmit {
                             if phoneNumberError == nil {
                                 withAnimation(.easeIn(duration: 0.5)) {
-                                    carrierInfoText = "정보를 확인해 주세요."
+                                    carrierInfoText = "\(name)님! 통신사는 어디 쓰세요?"
                                 }
                             }
                         }
@@ -155,31 +151,46 @@ struct LoginView: View {
                         .font(.footnote)
                 }
 
-                // 통신사 선택 버튼
+                // 통신사 선택 버튼 (가로 배열로 수정)
                 if !phoneNumber.isEmpty && phoneNumber.count == 13 {
                     VStack {
+                        // "통신사는 어디 쓰세요?" 문구 (중앙 정렬)
+                        if carrierInfoText != nil {
+                            Text(carrierInfoText ?? "")
+                                .font(.title3)
+                                .foregroundColor(.black)
+                                .transition(.opacity)
+                                .frame(maxWidth: .infinity, alignment: .center) // 중앙 정렬
+                        }
+                        
                         HStack {
                             ForEach(carriers, id: \.self) { carrier in
                                 Button(action: {
                                     selectedCarrier = carrier
-                                    carrierInfoText = "정보를 확인해 주세요."
+                                    withAnimation(.easeIn(duration: 0.5)) {
+                                        carrierInfoText = "\(name)님! 정보가 맞으세요?"
+                                    }
                                 }) {
-                                    Text(carrier)
-                                        .padding()
-                                        .background(selectedCarrier == carrier ? Color.blue : Color.gray)
-                                        .foregroundColor(.white)
-                                        .cornerRadius(5)
-                                        .padding(.horizontal, 5)
+                                    HStack {
+                                        Image(systemName: selectedCarrier == carrier ? "checkmark.circle.fill" : "circle")
+                                        Text(carrier)
+                                            .padding()
+                                    }
+                                    .padding(.horizontal, 10)
+                                    .background(selectedCarrier == carrier ? Color.blue : Color.gray)
+                                    .foregroundColor(.white)
+                                    .cornerRadius(5)
                                 }
                             }
                         }
-
+                        
+                        // 중앙에 위치한 정보 확인 문구
                         if selectedCarrier != nil {
                             NavigationLink(
-                                destination: VerificationView(phoneNumber: phoneNumber), // phoneNumber를 VerificationView로 전달
+                                destination: VerificationView(phoneNumber: phoneNumber),
                                 isActive: $isVerificationActive
                             ) {
-                                EmptyView() // NavigationLink에 빈 뷰 추가
+                                EmptyView()
                             }
 
                             Button(action: {
@@ -195,10 +206,14 @@ struct LoginView: View {
                                     .foregroundColor(.white)
                                     .cornerRadius(5)
                                     .padding(.top, 20)
+                                    .frame(maxWidth: .infinity, alignment: .center)
                             }
                         }
                     }
                     .padding(.top, 20)
+                    .frame(maxWidth: .infinity)
+                    .background(Color.white)
+                    .cornerRadius(10)
                 }
             }
             .padding()
@@ -253,6 +268,17 @@ struct LoginView: View {
         return number.count == 13
     }
 }
+
+
+
+
+
+
+
+
+
+
+
 
 
 
