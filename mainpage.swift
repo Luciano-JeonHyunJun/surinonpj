@@ -30,7 +30,24 @@ struct HomeView: View {
     @State private var isTappedZip = false // 기출 모음 Zip 클릭 애니메이션 상태
     @State private var isTappedAI = false // AI 첨삭 서비스 클릭 애니메이션 상태
     @State private var isTappedColumnZip = false // 칼럼Zip 클릭 애니메이션 상태
+    @State private var searchText = "" // 검색창 입력 텍스트
+    @State private var relatedSchools: [String] = [] // 연관 검색어 리스트
+    @State private var navigateToSearchPage = false // 검색 후 UniSearchPage로 이동 여부
 
+    // 샘플 대학 리스트
+    let allUniversities = [
+        "서울대학교", "남서울대학교", "청주대학교", "청주교육대학교", "연세대학교", "고려대학교"
+    ]
+    
+    // 연관 검색어 업데이트
+    func updateRelatedSchools() {
+        if searchText.isEmpty {
+            relatedSchools = []
+        } else {
+            relatedSchools = allUniversities.filter { $0.contains(searchText) }
+        }
+    }
+    
     var body: some View {
         VStack {
             // 기본 화면 콘텐츠
@@ -51,10 +68,15 @@ struct HomeView: View {
                             .foregroundColor(.blue)
 
                         // 검색창
-                        TextField("대학교를 검색해보세요", text: .constant(""))
+                        TextField("대학교를 검색해보세요", text: $searchText, onCommit: {
+                            navigateToSearchPage = true
+                        })
                             .padding(10)
                             .background(Color(UIColor.systemGray6))
                             .cornerRadius(8)
+                            .onChange(of: searchText, perform: { value in
+                                updateRelatedSchools() // 검색어 변경 시 연관 검색어 업데이트
+                            })
 
                         // 디데이
                         Text(targetDayText)
@@ -73,9 +95,26 @@ struct HomeView: View {
                     }
                     .padding(.horizontal)
 
+                    // 연관 검색어 표시
+                    if !relatedSchools.isEmpty {
+                        VStack {
+                            ForEach(relatedSchools, id: \.self) { school in
+                                NavigationLink(destination: school == "서울대학교" ? AnyView(SnuView()) : AnyView(UniversityDetailView(universityName: school))) {
+                                    Text(school)
+                                        .font(.system(size: 16, weight: .regular))
+                                        .foregroundColor(.blue)
+                                        .padding()
+                                        .transition(.move(edge: .top))
+                                }
+                            }
+                        }
+                        .frame(maxWidth: .infinity, minHeight: 160)
+                        .background(Color(UIColor.systemGray6))
+                        .cornerRadius(10)
+                    }
+                    
                     // 기출 모음 Zip & AI 첨삭 서비스
                     HStack(spacing: 15) {
-                        // 기출 모음 Zip 박스
                         VStack {
                             Text("기출 모음 Zip")
                                 .font(.headline)
@@ -88,15 +127,14 @@ struct HomeView: View {
                         .frame(width: UIScreen.main.bounds.width * 0.45, height: 120)
                         .background(Color.blue.opacity(0.2))
                         .cornerRadius(10)
-                        .scaleEffect(isTappedZip ? 0.95 : 1) // 클릭 애니메이션 독립시행
+                        .scaleEffect(isTappedZip ? 0.95 : 1)
                         .onTapGesture {
                             withAnimation {
                                 isTappedZip.toggle()
-                                isTappedAI = false // 다른 박스 애니메이션 해제
+                                isTappedAI = false
                             }
                         }
 
-                        // AI 첨삭 서비스 박스
                         VStack {
                             Text("AI 첨삭 서비스")
                                 .font(.headline)
@@ -109,16 +147,16 @@ struct HomeView: View {
                         .frame(width: UIScreen.main.bounds.width * 0.45, height: 120)
                         .background(Color.green.opacity(0.2))
                         .cornerRadius(10)
-                        .scaleEffect(isTappedAI ? 0.95 : 1) // 클릭 애니메이션 독립시행
+                        .scaleEffect(isTappedAI ? 0.95 : 1)
                         .onTapGesture {
                             withAnimation {
                                 isTappedAI.toggle()
-                                isTappedZip = false // 다른 박스 애니메이션 해제
+                                isTappedZip = false
                             }
                         }
                     }
                     .padding(.horizontal)
-
+                    
                     // 뉴스와 커뮤니티 탭
                     VStack {
                         HStack {
@@ -158,10 +196,10 @@ struct HomeView: View {
                                         .font(.system(size: 16, weight: .regular))
                                         .foregroundColor(.blue)
                                         .padding()
-                                        .transition(.move(edge: .top)) // 애니메이션 추가
+                                        .transition(.move(edge: .top))
                                 }
                             }
-                            .frame(maxWidth: .infinity, minHeight: 160) // 뉴스 박스 크기 조정
+                            .frame(maxWidth: .infinity, minHeight: 160)
                             .background(Color(UIColor.systemGray6))
                             .cornerRadius(10)
                             .onAppear {
@@ -178,10 +216,10 @@ struct HomeView: View {
                                         .font(.system(size: 16, weight: .regular))
                                         .foregroundColor(.blue)
                                         .padding()
-                                        .transition(.move(edge: .top)) // 애니메이션 추가
+                                        .transition(.move(edge: .top))
                                 }
                             }
-                            .frame(maxWidth: .infinity, minHeight: 160) // 커뮤니티 박스 크기 조정
+                            .frame(maxWidth: .infinity, minHeight: 160)
                             .background(Color(UIColor.systemGray6))
                             .cornerRadius(10)
                             .onAppear {
@@ -198,10 +236,10 @@ struct HomeView: View {
                                         .font(.system(size: 16, weight: .regular))
                                         .foregroundColor(.blue)
                                         .padding()
-                                        .transition(.move(edge: .top)) // 애니메이션 추가
+                                        .transition(.move(edge: .top))
                                 }
                             }
-                            .frame(maxWidth: .infinity, minHeight: 160) // 칼럼 박스 크기 조정
+                            .frame(maxWidth: .infinity, minHeight: 160)
                             .background(Color(UIColor.systemGray6))
                             .cornerRadius(10)
                         }
@@ -211,61 +249,83 @@ struct HomeView: View {
             
             // 하단 메뉴 탭바
             TabView(selection: $selectedTab) {
-                // 홈
-                VStack {
-                    Image(systemName: "house.fill")
-                        .font(.system(size: 30))
-                        .foregroundColor(.blue)
-                }
-                .tabItem {
-                    Label("홈", systemImage: "house.fill")
-                }
-                .tag("홈")
+                Text("홈 화면")
+                    .tabItem {
+                        Label("홈", systemImage: "house.fill")
+                    }
+                    .tag("홈")
 
-                // 대학Zip
-                VStack {
-                    Image(systemName: "graduationcap.fill")
-                        .font(.system(size: 30))
-                        .foregroundColor(.blue)
-                }
-                .tabItem {
-                    Label("대학Zip", systemImage: "graduationcap.fill")
-                }
-                .tag("대학Zip")
+                Text("대학교 검색")
+                    .tabItem {
+                        Label("대학Zip", systemImage: "graduationcap.fill")
+                    }
+                    .tag("대학Zip")
 
                 // 커뮤니티
-                VStack {
-                    Image(systemName: "bubble.left.and.bubble.right")
-                        .font(.system(size: 30))
-                        .foregroundColor(.blue)
-                }
-                .tabItem {
-                    Label("커뮤니티", systemImage: "bubble.left.and.bubble.right")
-                }
-                .tag("커뮤니티")
+                                VStack {
+                                    Image(systemName: "bubble.left.and.bubble.right")
+                                        .font(.system(size: 30))
+                                        .foregroundColor(.blue)
+                                }
+                                .tabItem {
+                                    Label("커뮤니티", systemImage: "bubble.left.and.bubble.right")
+                                }
+                                .tag("커뮤니티")
 
-                // 전체
-                VStack {
-                    Image(systemName: "list.dash")
-                        .font(.system(size: 30))
-                        .foregroundColor(.blue)
+                                // 전체
+                                VStack {
+                                    Image(systemName: "list.dash")
+                                        .font(.system(size: 30))
+                                        .foregroundColor(.blue)
+                                }
+                                .tabItem {
+                                    Label("전체", systemImage: "list.dash")
+                                }
+                                .tag("전체")
+                            }
+                            .padding(.top, 10)
+                        }
+                        .navigationBarHidden(true) // 기본 네비게이션 바 숨김
+                    }
                 }
-                .tabItem {
-                    Label("전체", systemImage: "list.dash")
-                }
-                .tag("전체")
-            }
-            .padding(.top, 10)
-        }
-        .navigationBarHidden(true) // 기본 네비게이션 바 숨김
+
+struct SnuView: View {
+    var body: some View {
+        Text("서울대학교 세부 페이지")
+            .font(.title)
+            .foregroundColor(.blue)
     }
 }
 
-struct HomeView_Previews: PreviewProvider {
-    static var previews: some View {
-        HomeView()
+struct universityDetailView: View {
+    var universityName: String
+
+    var body: some View {
+        Text("\(universityName) 세부 페이지")
+            .font(.title)
+            .foregroundColor(.blue)
     }
 }
+
+struct UniSearchPage: View { // UniSearchPage 뷰 추가
+    var body: some View {
+        Text("대학 검색 결과 페이지")
+            .font(.title)
+            .foregroundColor(.blue)
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
