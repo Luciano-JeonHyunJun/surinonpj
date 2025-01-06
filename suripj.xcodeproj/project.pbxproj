@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		A5344CF02D2AD07300888B41 /* snu.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5344CEF2D2AD06C00888B41 /* snu.swift */; };
 		A5344CF22D2AD0A500888B41 /* unisearchpage.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5344CF12D2AD0A400888B41 /* unisearchpage.swift */; };
 		A57C1C2F2D2185AD00E3013A /* mainpage.swift in Sources */ = {isa = PBXBuildFile; fileRef = A57C1C2E2D2185A700E3013A /* mainpage.swift */; };
 /* End PBXBuildFile section */
@@ -30,7 +29,6 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		A5344CEF2D2AD06C00888B41 /* snu.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = snu.swift; sourceTree = "<group>"; };
 		A5344CF12D2AD0A400888B41 /* unisearchpage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = unisearchpage.swift; sourceTree = "<group>"; };
 		A54778AB2D1E7D8300C1AB9E /* suripj.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = suripj.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A54778BB2D1E7D8400C1AB9E /* suripjTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = suripjTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -52,6 +50,16 @@
 		A54778C82D1E7D8400C1AB9E /* suripjUITests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = suripjUITests;
+			sourceTree = "<group>";
+		};
+		A54B68EC2D2C2B7D009D8D3C /* Uni */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = Uni;
+			sourceTree = "<group>";
+		};
+		A54B68ED2D2C2B8B009D8D3C /* tapbar */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = tapbar;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -84,13 +92,14 @@
 		A54778A22D1E7D8300C1AB9E = {
 			isa = PBXGroup;
 			children = (
-				A5344CF12D2AD0A400888B41 /* unisearchpage.swift */,
-				A5344CEF2D2AD06C00888B41 /* snu.swift */,
 				A57C1C2E2D2185A700E3013A /* mainpage.swift */,
+				A5344CF12D2AD0A400888B41 /* unisearchpage.swift */,
+				A54B68EC2D2C2B7D009D8D3C /* Uni */,
 				A54778AD2D1E7D8300C1AB9E /* suripj */,
 				A54778BE2D1E7D8400C1AB9E /* suripjTests */,
 				A54778C82D1E7D8400C1AB9E /* suripjUITests */,
 				A54778AC2D1E7D8300C1AB9E /* Products */,
+				A54B68ED2D2C2B8B009D8D3C /* tapbar */,
 			);
 			sourceTree = "<group>";
 		};
@@ -121,6 +130,8 @@
 			);
 			fileSystemSynchronizedGroups = (
 				A54778AD2D1E7D8300C1AB9E /* suripj */,
+				A54B68EC2D2C2B7D009D8D3C /* Uni */,
+				A54B68ED2D2C2B8B009D8D3C /* tapbar */,
 			);
 			name = suripj;
 			packageProductDependencies = (
@@ -249,7 +260,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				A57C1C2F2D2185AD00E3013A /* mainpage.swift in Sources */,
-				A5344CF02D2AD07300888B41 /* snu.swift in Sources */,
 				A5344CF22D2AD0A500888B41 /* unisearchpage.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

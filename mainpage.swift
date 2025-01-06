@@ -1,5 +1,11 @@
 import SwiftUI
 
+struct ContentView: View {
+    var body: some View {
+        HomeView()
+    }
+}
+
 struct HomeView: View {
     @State private var selectedTab: String = "홈" // 기본 탭: 홈
     @State private var userName: String = "이용자님" // 사용자 이름
@@ -49,271 +55,256 @@ struct HomeView: View {
     }
     
     var body: some View {
-        VStack {
-            // 기본 화면 콘텐츠
-            ScrollView {
-                VStack(spacing: 15) { // 글 간격 줄이기
-                    // 응원 문구
-                    Text("\(userName) 오늘도 화이팅 하세요!")
-                        .font(.system(size: 18, weight: .bold))
-                        .foregroundColor(.blue)
-                        .padding(.top, 10)
-
-                    // 검색창과 프로필
-                    HStack {
-                        // 프로필 사진
-                        Image(systemName: "person.crop.circle.fill")
-                            .resizable()
-                            .frame(width: 40, height: 40)
-                            .foregroundColor(.blue)
-
-                        // 검색창
-                        TextField("대학교를 검색해보세요", text: $searchText, onCommit: {
-                            navigateToSearchPage = true
-                        })
-                            .padding(10)
-                            .background(Color(UIColor.systemGray6))
-                            .cornerRadius(8)
-                            .onChange(of: searchText, perform: { value in
-                                updateRelatedSchools() // 검색어 변경 시 연관 검색어 업데이트
-                            })
-
-                        // 디데이
-                        Text(targetDayText)
-                            .font(.system(size: 14, weight: .regular))
-                            .foregroundColor(.red)
-                            .padding(.leading, 10)
-                            .transition(.opacity)
-                            .onAppear {
-                                Timer.scheduledTimer(withTimeInterval: 5.0, repeats: true) { _ in
-                                    withAnimation(.easeInOut(duration: 1.0)) {
-                                        targetDayIndex = (targetDayIndex + 1) % targetDays.count
-                                        targetDayText = targetDays[targetDayIndex]
-                                    }
-                                }
-                            }
-                    }
-                    .padding(.horizontal)
-
-                    // 연관 검색어 표시
-                    if !relatedSchools.isEmpty {
-                        VStack {
-                            ForEach(relatedSchools, id: \.self) { school in
-                                NavigationLink(destination: school == "서울대학교" ? AnyView(SnuView()) : AnyView(UniversityDetailView(universityName: school))) {
-                                    Text(school)
-                                        .font(.system(size: 16, weight: .regular))
-                                        .foregroundColor(.blue)
-                                        .padding()
-                                        .transition(.move(edge: .top))
-                                }
-                            }
-                        }
-                        .frame(maxWidth: .infinity, minHeight: 160)
-                        .background(Color(UIColor.systemGray6))
-                        .cornerRadius(10)
-                    }
-                    
-                    // 기출 모음 Zip & AI 첨삭 서비스
-                    HStack(spacing: 15) {
-                        VStack {
-                            Text("기출 모음 Zip")
-                                .font(.headline)
-                                .fontWeight(.bold)
-                            Text("학습할 수 있는 논술 기출이 120개!")
-                                .font(.subheadline)
-                                .foregroundColor(.gray)
-                        }
-                        .padding()
-                        .frame(width: UIScreen.main.bounds.width * 0.45, height: 120)
-                        .background(Color.blue.opacity(0.2))
-                        .cornerRadius(10)
-                        .scaleEffect(isTappedZip ? 0.95 : 1)
-                        .onTapGesture {
-                            withAnimation {
-                                isTappedZip.toggle()
-                                isTappedAI = false
-                            }
-                        }
-
-                        VStack {
-                            Text("AI 첨삭 서비스")
-                                .font(.headline)
-                                .fontWeight(.bold)
-                            Text("인공지능으로 빠르고 정확하게!")
-                                .font(.subheadline)
-                                .foregroundColor(.gray)
-                        }
-                        .padding()
-                        .frame(width: UIScreen.main.bounds.width * 0.45, height: 120)
-                        .background(Color.green.opacity(0.2))
-                        .cornerRadius(10)
-                        .scaleEffect(isTappedAI ? 0.95 : 1)
-                        .onTapGesture {
-                            withAnimation {
-                                isTappedAI.toggle()
-                                isTappedZip = false
-                            }
-                        }
-                    }
-                    .padding(.horizontal)
-                    
-                    // 뉴스와 커뮤니티 탭
-                    VStack {
+        TabView(selection: $selectedTab) {
+            // 홈 탭
+            NavigationView {
+                ScrollView {
+                    VStack(spacing: 20) {
+                        // 상단 영역
                         HStack {
-                            Button(action: {
-                                selectedTab = "뉴스"
-                            }) {
-                                Text("뉴스")
-                                    .font(.system(size: 18, weight: .medium))
-                                    .foregroundColor(selectedTab == "뉴스" ? .blue : .gray)
-                            }
-                            .padding(.horizontal)
+                            // 프로필 사진
+                            Image(systemName: "person.crop.circle.fill")
+                                .resizable()
+                                .frame(width: 40, height: 40)
+                                .foregroundColor(.blue)
 
-                            Button(action: {
-                                selectedTab = "커뮤니티"
-                            }) {
-                                Text("커뮤니티")
-                                    .font(.system(size: 18, weight: .medium))
-                                    .foregroundColor(selectedTab == "커뮤니티" ? .blue : .gray)
-                            }
-                            .padding(.horizontal)
+                            // 검색창
+                            TextField("대학교를 검색해보세요", text: $searchText, onCommit: {
+                                navigateToSearchPage = true
+                            })
+                                .padding(10)
+                                .background(Color(UIColor.systemGray6))
+                                .cornerRadius(8)
+                                .onChange(of: searchText, perform: { value in
+                                    updateRelatedSchools() // 검색어 변경 시 연관 검색어 업데이트
+                                })
 
-                            Button(action: {
-                                selectedTab = "칼럼Zip"
-                            }) {
-                                Text("칼럼Zip")
-                                    .font(.system(size: 18, weight: .medium))
-                                    .foregroundColor(selectedTab == "칼럼Zip" ? .blue : .gray)
-                            }
-                            .padding(.horizontal)
-                        }
-
-                        // 선택된 탭의 콘텐츠
-                        if selectedTab == "뉴스" {
-                            VStack(alignment: .leading, spacing: 10) {
-                                ForEach(newsContent, id: \.self) { content in
-                                    Text(content)
-                                        .font(.system(size: 16, weight: .regular))
-                                        .foregroundColor(.blue)
-                                        .padding()
-                                        .transition(.move(edge: .top))
-                                }
-                            }
-                            .frame(maxWidth: .infinity, minHeight: 160)
-                            .background(Color(UIColor.systemGray6))
-                            .cornerRadius(10)
-                            .onAppear {
-                                Timer.scheduledTimer(withTimeInterval: newsRefreshInterval, repeats: true) { _ in
-                                    withAnimation(.easeInOut(duration: 1.0)) {
-                                        newsIndex = (newsIndex + 1) % newsContent.count
+                            // 디데이
+                            Text(targetDayText)
+                                .font(.system(size: 14, weight: .regular))
+                                .foregroundColor(.red)
+                                .padding(.leading, 10)
+                                .transition(.opacity)
+                                .onAppear {
+                                    Timer.scheduledTimer(withTimeInterval: 5.0, repeats: true) { _ in
+                                        withAnimation(.easeInOut(duration: 1.0)) {
+                                            targetDayIndex = (targetDayIndex + 1) % targetDays.count
+                                            targetDayText = targetDays[targetDayIndex]
+                                        }
                                     }
                                 }
-                            }
-                        } else if selectedTab == "커뮤니티" {
-                            VStack(alignment: .leading, spacing: 10) {
-                                ForEach(communityPosts, id: \.self) { post in
-                                    Text(post)
-                                        .font(.system(size: 16, weight: .regular))
-                                        .foregroundColor(.blue)
-                                        .padding()
-                                        .transition(.move(edge: .top))
-                                }
-                            }
-                            .frame(maxWidth: .infinity, minHeight: 160)
-                            .background(Color(UIColor.systemGray6))
-                            .cornerRadius(10)
-                            .onAppear {
-                                Timer.scheduledTimer(withTimeInterval: communityRefreshInterval, repeats: true) { _ in
-                                    withAnimation(.easeInOut(duration: 1.0)) {
-                                        communityIndex = (communityIndex + 1) % communityPosts.count
-                                    }
-                                }
-                            }
-                        } else if selectedTab == "칼럼Zip" {
-                            VStack(alignment: .leading, spacing: 10) {
-                                ForEach(columnContent, id: \.self) { column in
-                                    Text(column)
-                                        .font(.system(size: 16, weight: .regular))
-                                        .foregroundColor(.blue)
-                                        .padding()
-                                        .transition(.move(edge: .top))
-                                }
-                            }
-                            .frame(maxWidth: .infinity, minHeight: 160)
-                            .background(Color(UIColor.systemGray6))
-                            .cornerRadius(10)
                         }
-                    }
-                }
-            }
-            
-            // 하단 메뉴 탭바
-            TabView(selection: $selectedTab) {
-                Text("홈 화면")
-                    .tabItem {
-                        Label("홈", systemImage: "house.fill")
-                    }
-                    .tag("홈")
+                        .padding(.horizontal)
 
-                Text("대학교 검색")
-                    .tabItem {
-                        Label("대학Zip", systemImage: "graduationcap.fill")
-                    }
-                    .tag("대학Zip")
-
-                // 커뮤니티
-                                VStack {
-                                    Image(systemName: "bubble.left.and.bubble.right")
-                                        .font(.system(size: 30))
-                                        .foregroundColor(.blue)
-                                }
-                                .tabItem {
-                                    Label("커뮤니티", systemImage: "bubble.left.and.bubble.right")
-                                }
-                                .tag("커뮤니티")
-
-                                // 전체
-                                VStack {
-                                    Image(systemName: "list.dash")
-                                        .font(.system(size: 30))
-                                        .foregroundColor(.blue)
-                                }
-                                .tabItem {
-                                    Label("전체", systemImage: "list.dash")
-                                }
-                                .tag("전체")
-                            }
+                        // 사용자 이름 표시
+                        Text("\(userName) 오늘도 화이팅 하세요!")
+                            .font(.system(size: 18, weight: .bold))
+                            .foregroundColor(.blue)
                             .padding(.top, 10)
+
+                        // 연관 검색어 표시
+                        if !relatedSchools.isEmpty {
+                            VStack {
+                                ForEach(relatedSchools, id: \.self) { school in
+                                    NavigationLink(destination: UniversityDetailView(universityName: school)) {
+                                        Text(school)
+                                            .font(.system(size: 16, weight: .regular))
+                                            .foregroundColor(.blue)
+                                            .padding()
+                                            .transition(.move(edge: .top))
+                                    }
+                                }
+                            }
+                            .frame(maxWidth: .infinity, minHeight: 160)
+                            .background(Color(UIColor.systemGray6))
+                            .cornerRadius(10)
                         }
-                        .navigationBarHidden(true) // 기본 네비게이션 바 숨김
+
+                        // 기출 모음 Zip & AI 첨삭 서비스
+                        HStack(spacing: 15) {
+                            VStack {
+                                Text("기출 모음 Zip")
+                                    .font(.headline)
+                                    .fontWeight(.bold)
+                                Text("학습할 수 있는 논술 기출이 120개!")
+                                    .font(.subheadline)
+                                    .foregroundColor(.gray)
+                            }
+                            .padding()
+                            .frame(width: UIScreen.main.bounds.width * 0.45, height: 120)
+                            .background(Color.blue.opacity(0.2))
+                            .cornerRadius(10)
+                            .scaleEffect(isTappedZip ? 0.95 : 1)
+                            .onTapGesture {
+                                withAnimation {
+                                    isTappedZip.toggle()
+                                    isTappedAI = false
+                                }
+                            }
+
+                            VStack {
+                                Text("AI 첨삭 서비스")
+                                    .font(.headline)
+                                    .fontWeight(.bold)
+                                Text("인공지능으로 빠르고 정확하게!")
+                                    .font(.subheadline)
+                                    .foregroundColor(.gray)
+                            }
+                            .padding()
+                            .frame(width: UIScreen.main.bounds.width * 0.45, height: 120)
+                            .background(Color.green.opacity(0.2))
+                            .cornerRadius(10)
+                            .scaleEffect(isTappedAI ? 0.95 : 1)
+                            .onTapGesture {
+                                withAnimation {
+                                    isTappedAI.toggle()
+                                    isTappedZip = false
+                                }
+                            }
+                        }
+                        .padding(.horizontal)
+
+                        // 뉴스와 커뮤니티 탭
+                        VStack {
+                            HStack {
+                                Button(action: {
+                                    selectedTab = "뉴스"
+                                }) {
+                                    Text("뉴스")
+                                        .font(.system(size: 18, weight: .medium))
+                                        .foregroundColor(selectedTab == "뉴스" ? .blue : .gray)
+                                }
+                                .padding(.horizontal)
+
+                                Button(action: {
+                                    selectedTab = "커뮤니티"
+                                }) {
+                                    Text("커뮤니티")
+                                        .font(.system(size: 18, weight: .medium))
+                                        .foregroundColor(selectedTab == "커뮤니티" ? .blue : .gray)
+                                }
+                                .padding(.horizontal)
+
+                                Button(action: {
+                                    selectedTab = "칼럼Zip"
+                                }) {
+                                    Text("칼럼Zip")
+                                        .font(.system(size: 18, weight: .medium))
+                                        .foregroundColor(selectedTab == "칼럼Zip" ? .blue : .gray)
+                                }
+                                .padding(.horizontal)
+                            }
+
+                            // 선택된 탭의 콘텐츠
+                            if selectedTab == "뉴스" {
+                                VStack(alignment: .leading, spacing: 10) {
+                                    ForEach(newsContent, id: \.self) { content in
+                                        Text(content)
+                                            .font(.system(size: 16, weight: .regular))
+                                            .foregroundColor(.blue)
+                                            .padding()
+                                            .transition(.move(edge: .top))
+                                    }
+                                }
+                                .frame(maxWidth: .infinity, minHeight: 160)
+                                .background(Color(UIColor.systemGray6))
+                                .cornerRadius(10)
+                                .onAppear {
+                                    Timer.scheduledTimer(withTimeInterval: newsRefreshInterval, repeats: true) { _ in
+                                        withAnimation(.easeInOut(duration: 1.0)) {
+                                            newsIndex = (newsIndex + 1) % newsContent.count
+                                        }
+                                    }
+                                }
+                            } else if selectedTab == "커뮤니티" {
+                                VStack(alignment: .leading, spacing: 10) {
+                                    ForEach(communityPosts, id: \.self) { post in
+                                        Text(post)
+                                            .font(.system(size: 16, weight: .regular))
+                                            .foregroundColor(.blue)
+                                            .padding()
+                                            .transition(.move(edge: .top))
+                                    }
+                                }
+                                .frame(maxWidth: .infinity, minHeight: 160)
+                                .background(Color(UIColor.systemGray6))
+                                .cornerRadius(10)
+                                .onAppear {
+                                    Timer.scheduledTimer(withTimeInterval: communityRefreshInterval, repeats: true) { _ in
+                                        withAnimation(.easeInOut(duration: 1.0)) {
+                                            communityIndex = (communityIndex + 1) % communityPosts.count
+                                        }
+                                    }
+                                }
+                            } else if selectedTab == "칼럼Zip" {
+                                VStack(alignment: .leading, spacing: 10) {
+                                    ForEach(columnContent, id: \.self) { column in
+                                        Text(column)
+                                            .font(.system(size: 16, weight: .regular))
+                                            .foregroundColor(.blue)
+                                            .padding()
+                                            .transition(.move(edge: .top))
+                                    }
+                                }
+                                .frame(maxWidth: .infinity, minHeight: 160)
+                                .background(Color(UIColor.systemGray6))
+                                .cornerRadius(10)
+                            }
+                        }
                     }
+                    .padding(.top)
                 }
-
-struct SnuView: View {
-    var body: some View {
-        Text("서울대학교 세부 페이지")
-            .font(.title)
-            .foregroundColor(.blue)
+                .navigationBarTitle("홈", displayMode: .inline)
+                .navigationBarHidden(true) // 네비게이션 바 숨김
+            }
+            .tabItem {
+                Image(systemName: "house.fill")
+                Text("홈")
+            }
+            .tag("홈")
+            
+            // 대학Zip 탭
+            NavigationView {
+                UniZipView()
+            }
+            .tabItem {
+                Image(systemName: "book.fill")
+                Text("대학Zip")
+            }
+            .tag("대학Zip")
+            
+            // 커뮤니티 탭
+            NavigationView {
+                CommuView()
+            }
+            .tabItem {
+                Image(systemName: "bubble.right.fill")
+                Text("커뮤니티")
+            }
+            .tag("커뮤니티")
+            
+            // 전체 탭
+            NavigationView {
+                AllZipView()
+            }
+            .tabItem {
+                Image(systemName: "square.grid.2x2.fill")
+                Text("전체")
+            }
+            .tag("전체")
+        }
     }
 }
 
-struct universityDetailView: View {
-    var universityName: String
 
-    var body: some View {
-        Text("\(universityName) 세부 페이지")
-            .font(.title)
-            .foregroundColor(.blue)
-    }
-}
 
-struct UniSearchPage: View { // UniSearchPage 뷰 추가
-    var body: some View {
-        Text("대학 검색 결과 페이지")
-            .font(.title)
-            .foregroundColor(.blue)
-    }
-}
+
+
+
+
+
+
+
 
 
 
