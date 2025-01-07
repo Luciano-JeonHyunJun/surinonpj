@@ -1,27 +1,61 @@
 import SwiftUI
 
 struct UniZipView: View {
+    @State private var showFilterSheet = false
+    @State private var filterMathEssay = false
+    @State private var filterHumanitiesEssay = false
+    @State private var filterMedicalEssay = false
+
     var body: some View {
-        // NavigationView로 네비게이션 기능을 활성화합니다.
         NavigationView {
-            List {
-                // 연세대학교와 고려대학교 항목을 리스트로 표시하고, 클릭 시 각 대학교의 세부 정보 페이지로 네비게이션합니다.
-                universityRow("연세대학교", logoName: "yonsei_logo", destination: YonseiUniversityView(), hasMathEssay: false, hasHumanitiesEssay: true, hasmedicalEssay: false)
-                universityRow("고려대학교", logoName: "korea_logo", destination: KoreaUniversityView(), hasMathEssay: true, hasHumanitiesEssay: true, hasmedicalEssay: true)
-                universityRow("한양대학교", logoName: "hanyang_logo", destination: HanyangUniversityView(), hasMathEssay: true, hasHumanitiesEssay: false, hasmedicalEssay: false)
-                
-        
+            VStack {
+                HStack {
+                    Spacer()
+                    Button(action: {
+                        showFilterSheet = true
+                    }) {
+                        Text("필터")
+                            .font(.headline)
+                            .padding()
+                            .background(Color.blue)
+                            .foregroundColor(.white)
+                            .cornerRadius(8)
+                    }
+                    .padding()
+                }
+
+                List {
+                    if shouldShowUniversity(hasMathEssay: false, hasHumanitiesEssay: false, hasMedicalEssay: false) {
+                        universityRow("연세대학교", logoName: "yonsei_logo", destination: YonseiUniversityView(), hasMathEssay: false, hasHumanitiesEssay: true, hasmedicalEssay: false)
+                    }
+                    if shouldShowUniversity(hasMathEssay: true, hasHumanitiesEssay: true, hasMedicalEssay: true) {
+                        universityRow("고려대학교", logoName: "korea_logo", destination: KoreaUniversityView(), hasMathEssay: true, hasHumanitiesEssay: true, hasmedicalEssay: true)
+                    }
+                    if shouldShowUniversity(hasMathEssay: true, hasHumanitiesEssay: false, hasMedicalEssay: false) {
+                        universityRow("한양대학교", logoName: "hanyang_logo", destination: HanyangUniversityView(), hasMathEssay: true, hasHumanitiesEssay: false, hasmedicalEssay: false)
+                    }
+                }
+                .listStyle(PlainListStyle())
+                .navigationBarHidden(true)
+                .background(Color.white)
             }
-            .listStyle(PlainListStyle()) // List 스타일을 평범하게 설정
-            .navigationBarHidden(true) // 네비게이션 바 숨기기
-            .background(Color.white) // 배경색을 하얀색으로 설정
+            .sheet(isPresented: $showFilterSheet) {
+                FilterView(filterMathEssay: $filterMathEssay, filterHumanitiesEssay: $filterHumanitiesEssay, filterMedicalEssay: $filterMedicalEssay)
+            }
         }
     }
-    
-    // universityRow 함수는 각 대학교 항목을 나타내며, 클릭 시 해당 대학교에 대한 상세 정보 페이지로 이동할 수 있도록 합니다.
+
+    private func shouldShowUniversity(hasMathEssay: Bool, hasHumanitiesEssay: Bool, hasMedicalEssay: Bool) -> Bool {
+        if !filterMathEssay && !filterHumanitiesEssay && !filterMedicalEssay {
+            return true
+        }
+        return (filterMathEssay == hasMathEssay || !filterMathEssay)
+            && (filterHumanitiesEssay == hasHumanitiesEssay || !filterHumanitiesEssay)
+            && (filterMedicalEssay == hasMedicalEssay || !filterMedicalEssay)
+    }
+
     private func universityRow(_ name: String, logoName: String, destination: some View, hasMathEssay: Bool, hasHumanitiesEssay: Bool, hasmedicalEssay: Bool) -> some View {
         HStack {
-            // 대학교 로고 표시
             Image(logoName)
                 .resizable()
                 .scaledToFit()
@@ -34,39 +68,33 @@ struct UniZipView: View {
                     .font(.headline)
                     .foregroundColor(.primary)
 
-                // 수리논술과 인문논술 동그라미 표시
                 HStack {
-                    // 수리논술이 있는 경우
                     if hasMathEssay {
                         Circle()
-                            .fill(Color.blue) // 파란색 동그라미
+                            .fill(Color.blue)
                             .frame(width: 10, height: 10)
                         Text("수리논술")
                             .font(.footnote)
-                            .foregroundColor(.gray) // 회색으로 글자 색상
+                            .foregroundColor(.gray)
                     }
-                    
-                    // 인문논술이 있는 경우
                     if hasHumanitiesEssay {
                         Circle()
-                            .fill(Color.green) // 초록색 동그라미
+                            .fill(Color.green)
                             .frame(width: 10, height: 10)
                         Text("인문논술")
                             .font(.footnote)
-                            .foregroundColor(.gray) // 연두색으로 글자 색상
-                    
-                        if hasmedicalEssay {
-                            Circle()
-                                .fill(Color.purple) //보라색 동그라미
-                                .frame(width: 10, height: 10)
-                            Text("메디컬")
-                                .font(.footnote)
-                                .foregroundColor(.gray)
-                        }
+                            .foregroundColor(.gray)
+                    }
+                    if hasmedicalEssay {
+                        Circle()
+                            .fill(Color.purple)
+                            .frame(width: 10, height: 10)
+                        Text("메디컬")
+                            .font(.footnote)
+                            .foregroundColor(.gray)
                     }
                 }
             }
-            
             Spacer()
             Image(systemName: "chevron.right")
                 .foregroundColor(.gray)
@@ -83,11 +111,67 @@ struct UniZipView: View {
     }
 }
 
+struct FilterView: View {
+    @Binding var filterMathEssay: Bool
+    @Binding var filterHumanitiesEssay: Bool
+    @Binding var filterMedicalEssay: Bool
+    @Environment(\.presentationMode) var presentationMode
+
+    var body: some View {
+        VStack(alignment: .leading) {
+            Text("논술 유형")
+                .font(.headline)
+                .padding(.bottom, 10)
+
+            HStack {
+                Toggle("수리논술", isOn: $filterMathEssay)
+                    .toggleStyle(CheckboxToggleStyle())
+                    .padding(.trailing)
+                Toggle("인문논술", isOn: $filterHumanitiesEssay)
+                    .toggleStyle(CheckboxToggleStyle())
+                    .padding(.trailing)
+                Toggle("메디컬", isOn: $filterMedicalEssay)
+                    .toggleStyle(CheckboxToggleStyle())
+            }
+            .padding(.bottom, 20)
+
+            Button(action: {
+                presentationMode.wrappedValue.dismiss()
+            }) {
+                Text("적용")
+                    .font(.headline)
+                    .padding()
+                    .frame(maxWidth: .infinity)
+                    .background(Color.blue)
+                    .foregroundColor(.white)
+                    .cornerRadius(8)
+            }
+            Spacer()
+        }
+        .padding()
+        .navigationBarTitle("필터", displayMode: .inline)
+    }
+}
+
+struct CheckboxToggleStyle: ToggleStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        HStack {
+            configuration.label
+            Spacer()
+            Image(systemName: configuration.isOn ? "checkmark.square" : "square")
+                .onTapGesture {
+                    configuration.isOn.toggle()
+                }
+        }
+    }
+}
+
 struct UniZipView_Previews: PreviewProvider {
     static var previews: some View {
         UniZipView()
     }
 }
+
 
 
 
