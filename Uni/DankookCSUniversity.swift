@@ -1,11 +1,12 @@
+//천안캠퍼스
 import SwiftUI
 
-// 한국항공대학교 세부 정보 페이지
-struct AerospaceUniversityView: View {
+// 대학교 세부 정보 페이지
+struct DankookCSUniversityView: View {
     var body: some View {
         VStack {
-            // 한국항공대학교 정보 (예시)
-            Text("한국항공대학교")
+            // 대학교 정보 (예시)
+            Text("단국대학교 천안캠퍼스")
                 .font(.largeTitle)
                 .fontWeight(.bold)
             
@@ -16,12 +17,12 @@ struct AerospaceUniversityView: View {
             
             Spacer()
         }
-        .navigationBarTitle("한국항공대학교", displayMode: .inline)
+        .navigationBarTitle("단국대학교 천안캠퍼스", displayMode: .inline)
     }
 }
 
-struct AerospaceniversityView_Previews: PreviewProvider {
+struct DankookCSUniversityView_Previews: PreviewProvider {
     static var previews: some View {
-        AerospaceUniversityView()
+        DankookCSUniversityView()
     }
 }

@@ -1,11 +1,12 @@
+// 메디컬
 import SwiftUI
 
-// 한국항공대학교 세부 정보 페이지
-struct AerospaceUniversityView: View {
+// 대학교 세부 정보 페이지
+struct EwhaFMUniversityView: View {
     var body: some View {
         VStack {
-            // 한국항공대학교 정보 (예시)
-            Text("한국항공대학교")
+            // 대학교 정보 (예시)
+            Text("이화여자대학교")
                 .font(.largeTitle)
                 .fontWeight(.bold)
             
@@ -16,12 +17,13 @@ struct AerospaceUniversityView: View {
             
             Spacer()
         }
-        .navigationBarTitle("한국항공대학교", displayMode: .inline)
+        .navigationBarTitle("이화여자대학교", displayMode: .inline)
     }
 }
 
-struct AerospaceniversityView_Previews: PreviewProvider {
+struct EwhaFMUniversityView_Previews: PreviewProvider {
     static var previews: some View {
-        AerospaceUniversityView()
+        EwhaFMUniversityView()
     }
 }
+

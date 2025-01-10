@@ -5,7 +5,7 @@ struct CatholicUniversityView: View {
     var body: some View {
         VStack {
             // 가톨릭대학교 정보 (예시)
-            Text("고려대학교")
+            Text("가톨릭대학교")
                 .font(.largeTitle)
                 .fontWeight(.bold)
             
