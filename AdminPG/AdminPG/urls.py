@@ -17,7 +17,9 @@ Including another URLconf
 
 from django.contrib import admin
 from django.urls import path
+from essays.views import home  # home 뷰 임포트
 
 urlpatterns = [
-    path("admin/", admin.site.urls),
+    path('admin/', admin.site.urls),
+    path('', home, name='home'),  # 홈 페이지 URL 연결
 ]
